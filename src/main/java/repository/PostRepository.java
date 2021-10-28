@@ -16,7 +16,7 @@ public class PostRepository {
     }
 
     public Optional<Post> getById(long id) {
-        for (Post post : this.posts) {
+        for (Post post : posts) {
             if (post.getId() == id) {
                 return Optional.of(post);
             }
@@ -26,26 +26,26 @@ public class PostRepository {
 
     public Post save(Post post) {
         if (post.getId() == 0) {
-            post.setId(countId);
-            posts.add(post);
+            posts.add(new Post(countId, post.getContent()));
             countId++;
         } else {
+            Post remove = null;
+            Post add = null;
             for (Post pst : posts) {
                 if (pst.getId() == post.getId()) {
-                    posts.set((int) countId, post);
+                    remove = pst;
+                    add = post;
                 } else {
                     posts.add(post);
                 }
             }
+            posts.remove(remove);
+            posts.add(add);
         }
         return post;
     }
 
     public void removeById(long id) {
-        for (Post post : this.posts) {
-            if (post.getId() == id) {
-                this.posts.remove(post);
-            }
-        }
+        posts.removeIf(post -> post.getId() == id);
     }
 }
