@@ -1,15 +1,14 @@
-package repository;
+package com.springstudy.repository;
 
-import model.Post;
+import com.springstudy.model.Post;
+import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-// Stub
-public class PostRepository {
+@Repository
+public class PostRepositoryStubImpl implements PostRepository {
     private List<Post> posts = new CopyOnWriteArrayList<>();
     private static long countId = 1;
 
