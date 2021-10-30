@@ -53,6 +53,6 @@ public class MainServlet extends HttpServlet {
     }
 
     private long findId (String path) {
-        return Long.parseLong(path.substring(path.lastIndexOf("/")).replace("/", ""));
+        return Long.parseLong(path.substring(path.lastIndexOf("/") + 1));
     }
 }
