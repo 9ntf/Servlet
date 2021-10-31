@@ -2,6 +2,7 @@ package com.springstudy.service;
 
 import com.springstudy.model.Post;
 import com.springstudy.exception.NotFoundException;
+import com.springstudy.repository.PostRepository;
 import com.springstudy.repository.PostRepositoryStubImpl;
 import org.springframework.stereotype.Service;
 
@@ -9,7 +10,7 @@ import java.util.List;
 
 @Service
 public class PostService{
-    private final PostRepositoryStubImpl repository;
+    private final PostRepository repository;
 
     public PostService(PostRepositoryStubImpl repository) {
         this.repository = repository;
