@@ -1,15 +1,18 @@
-package service;
+package com.springstudy.service;
 
-import exception.NotFoundException;
-import model.Post;
-import repository.PostRepository;
+import com.springstudy.model.Post;
+import com.springstudy.exception.NotFoundException;
+import com.springstudy.repository.PostRepository;
+import com.springstudy.repository.PostRepositoryStubImpl;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-public class PostService {
+@Service
+public class PostService{
     private final PostRepository repository;
 
-    public PostService(PostRepository repository) {
+    public PostService(PostRepositoryStubImpl repository) {
         this.repository = repository;
     }
 
