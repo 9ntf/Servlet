@@ -20,27 +20,32 @@ public class MainServlet extends HttpServlet {
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) {
-        // если деплоились в root context, то достаточно этого
+
         try {
             final var path = req.getRequestURI();
             final var method = req.getMethod();
-            // primitive routing
+
             if (method.equals("GET") && path.equals("/api/posts")) {
                 controller.all(resp);
                 return;
             }
             if (method.equals("GET") && path.matches("/api/posts/\\d+")) {
-                // easy way
                 final var id = findId(path);
                 controller.getById(id, resp);
                 return;
             }
+
+            if (method.equals("GET") && !path.matches("/api/posts/\\d+")) {
+                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+
             if (method.equals("POST") && path.equals("/api/posts")) {
                 controller.save(req.getReader(), resp);
                 return;
             }
+
             if (method.equals("DELETE") && path.matches("/api/posts/\\d+")) {
-                // easy way
                 final var id = findId(path);
                 controller.removeById(id, resp);
                 return;
