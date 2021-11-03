@@ -3,14 +3,12 @@ package repository;
 import model.Post;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 // Stub
 public class PostRepository {
-    private List<Post> posts = new CopyOnWriteArrayList<>();
+    private List<Post> posts = new ArrayList<>();
     private static long countId = 1;
 
     public List<Post> all() {
@@ -27,27 +25,32 @@ public class PostRepository {
     }
 
     public Post save(Post post) {
-        if (post.getId() == 0) {
-            posts.add(new Post(countId, post.getContent()));
-            countId++;
-        } else {
-            Post remove = null;
-            Post add = null;
-            for (Post pst : posts) {
-                if (pst.getId() == post.getId()) {
-                    remove = pst;
-                    add = post;
-                } else {
-                    posts.add(post);
+        synchronized (post) {
+            if (post.getId() == 0) {
+                posts.add(new Post(countId, post.getContent()));
+                countId++;
+                return post;
+            } else if (post.getId() > 0){
+                for (Post pst : posts) {
+                    if (post.getId() == pst.getId()) {
+                        posts.set(posts.indexOf(pst), post);
+                        return pst;
+                    }else {
+                        posts.add(post);
+                        return post;
+                    }
                 }
             }
-            posts.remove(remove);
-            posts.add(add);
+            return post;
         }
-        return post;
     }
 
     public void removeById(long id) {
-        posts.removeIf(post -> post.getId() == id);
+        for (Post post : posts) {
+            if (post.getId() == id) {
+                posts.remove(post);
+                return;
+            }
+        }
     }
 }
