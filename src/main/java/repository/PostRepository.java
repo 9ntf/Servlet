@@ -1,56 +1,50 @@
 package repository;
 
+import exception.NotFoundException;
 import model.Post;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
-// Stub
 public class PostRepository {
-    private List<Post> posts = new ArrayList<>();
-    private static long countId = 1;
+    private final ConcurrentHashMap<Long, Post> posts = new ConcurrentHashMap<>();
+    private static AtomicLong countId = new AtomicLong(1);
 
     public List<Post> all() {
-        return this.posts;
+        return new ArrayList<>(posts.values());
     }
 
     public Optional<Post> getById(long id) {
-        for (Post post : posts) {
-            if (post.getId() == id) {
-                return Optional.of(post);
-            }
-        }
-        return Optional.empty();
+        Post post = findPostById(id);
+        return post != null ? Optional.of(post) : Optional.empty();
     }
 
     public Post save(Post post) {
         synchronized (post) {
             if (post.getId() == 0) {
-                posts.add(new Post(countId, post.getContent()));
-                countId++;
+                post.setId(countId.incrementAndGet());
+                posts.put(post.getId(), post);
                 return post;
-            } else if (post.getId() > 0){
-                for (Post pst : posts) {
-                    if (post.getId() == pst.getId()) {
-                        posts.set(posts.indexOf(pst), post);
-                        return pst;
-                    }else {
-                        posts.add(post);
-                        return post;
-                    }
-                }
             }
-            return post;
+
+            Post p = findPostById(post.getId());
+            if (p != null) {
+                posts.put(post.getId(), post);
+            }
+            return p;
         }
     }
 
     public void removeById(long id) {
-        for (Post post : posts) {
-            if (post.getId() == id) {
-                posts.remove(post);
-                return;
-            }
-        }
+        posts.remove(id, findPostById(id));
+    }
+
+    private Post findPostById(long id) {
+        if (posts.containsKey(id)) {
+            return posts.get(id);
+        } else throw new NotFoundException("Post not found");
     }
 }
