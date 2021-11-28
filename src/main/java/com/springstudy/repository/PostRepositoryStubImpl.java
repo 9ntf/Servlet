@@ -4,54 +4,54 @@ import com.springstudy.model.Post;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 public class PostRepositoryStubImpl implements PostRepository {
-    private List<Post> posts = new ArrayList<>();
-    private static long countId = 1;
+    private final List<Post> posts = Collections.synchronizedList(new ArrayList<>());
+    private long count = 1;
 
+    @Override
     public List<Post> all() {
-        return this.posts;
+        return posts;
     }
 
+    @Override
     public Optional<Post> getById(long id) {
-        for (Post post : posts) {
-            if (post.getId() == id) {
-                return Optional.of(post);
-            }
-        }
-        return Optional.empty();
+        Post p = findPostById(id);
+        return p != null ? Optional.of(p) : Optional.empty();
     }
 
+    @Override
     public Post save(Post post) {
-        synchronized (post) {
-            if (post.getId() == 0) {
-                posts.add(new Post(countId, post.getContent()));
-                countId++;
-                return post;
-            } else if (post.getId() > 0){
-                for (Post pst : posts) {
-                    if (post.getId() == pst.getId()) {
-                        posts.set(posts.indexOf(pst), post);
-                        return pst;
-                    }else {
-                        posts.add(post);
-                        return post;
-                    }
-                }
-            }
+        if (post.getId() == 0) {
+            post.setId(count);
+            count++;
+            posts.add(post);
             return post;
         }
+
+        Post p = findPostById(post.getId());
+        if (p != null) {
+            posts.set(posts.indexOf(p), post);
+        }
+        return p;
     }
 
+    @Override
     public void removeById(long id) {
-        for (Post post : posts) {
-            if (post.getId() == id) {
-                posts.remove(post);
-                return;
-            }
+        Post p = findPostById(id);
+        if (p != null) {
+            posts.remove(p);
         }
+    }
+
+    private Post findPostById(long id) {
+        return posts.stream()
+                .filter(p -> p.getId() == id)
+                .findFirst()
+                .orElse(null);
     }
 }
